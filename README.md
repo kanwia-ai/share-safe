@@ -37,6 +37,8 @@ In any Claude Code session:
 /share-safe --quick      # Just findings, no explanations
 /share-safe clipboard    # Check clipboard before pasting
 /share-safe --deploy     # Extra paranoid mode for deployment
+/share-safe --sweep      # Audit ALL your GitHub repos for leaked secrets
+/share-safe --sweep --fix # Audit + auto-fix (.gitignore, LICENSE, bloat removal)
 /share-safe path/to/file # Scan a single file
 ```
 
@@ -62,6 +64,46 @@ In any Claude Code session:
 - Localhost URLs
 - AI conversation artifacts ("TODO: ask Claude...")
 - Debug flags left enabled
+
+## GitHub Sweep Mode
+
+The `--sweep` flag goes beyond your current project — it audits **every repo on your GitHub account** for security issues.
+
+**What it checks across all your repos:**
+
+- Leaked secrets in code (API keys, tokens, passwords, private keys)
+- Secret files in git history (deleted but still recoverable)
+- Missing or incomplete `.gitignore` files
+- Committed bloat (`node_modules/`, `__pycache__/`, `venv/`)
+- Bot/scraper activity on public repos (high clones, zero views)
+
+**With `--fix`, it auto-repairs:**
+
+- Adds comprehensive `.gitignore` to repos missing one
+- Patches incomplete `.gitignore` files with missing exclusions
+- Removes committed `node_modules` and other bloat
+- Adds a LICENSE to every repo (MIT for public, All Rights Reserved for private)
+- Commits and pushes all fixes
+
+**It will NOT auto-fix actual leaked secrets** — those require credential rotation. It tells you exactly what to do instead.
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SHARE-SAFE GITHUB SWEEP REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Account: your-username
+Repos scanned: 31 (22 public, 9 private)
+
+🔴 0 critical (no leaked secrets)
+🟡 10 repos missing .gitignore    → Fixed ✓
+🟡 12 repos with incomplete .gitignore → Patched ✓
+🟢 1 repo with committed node_modules → Removed ✓
+ℹ️  3 repos with suspicious bot clone activity
+
+✅ All repos secured!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
 ## Auto-Fix
 

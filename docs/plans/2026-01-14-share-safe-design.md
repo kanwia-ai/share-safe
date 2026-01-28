@@ -93,6 +93,28 @@ Extra paranoid checks:
 - Localhost URLs that won't work in production
 - Console.log/print with sensitive data
 
+### GitHub Sweep Mode
+```
+/share-safe --sweep
+/share-safe --sweep --fix
+```
+Full account-wide security audit. Scans ALL repos (public + private) for:
+- Leaked secrets via GitHub code search API (16 pattern types)
+- Hardcoded secrets in code via local clone + grep
+- Secret files in git history (deleted but recoverable via `git log --diff-filter=D`)
+- Missing or incomplete `.gitignore` files
+- Committed bloat (`node_modules/`, `__pycache__/`, `venv/`)
+- Bot/scraper activity on public repos (traffic API: high clones with zero views)
+
+With `--fix` flag, auto-repairs:
+- Adds comprehensive `.gitignore` template to repos missing one
+- Patches existing `.gitignore` files with missing exclusion patterns
+- Removes committed dependency directories from git tracking
+- Adds LICENSE to every repo (MIT for public, All Rights Reserved for private)
+- Commits and pushes all fixes
+
+Does NOT auto-fix actual leaked secrets — flags them with rotation instructions instead.
+
 ---
 
 ## Auto-Fix Flow
